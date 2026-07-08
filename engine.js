@@ -273,6 +273,11 @@ ${text}`;
       sourceUrl: input.sourceUrl.trim(),
       platform: input.platform.trim(),
       title: input.title.trim(),
+      hookType: (input.hookType || "").trim(),
+      thesisShape: (input.thesisShape || "").trim(),
+      emotionalStance: (input.emotionalStance || "").trim(),
+      proofMove: (input.proofMove || "").trim(),
+      cadence: (input.cadence || "").trim(),
       whyItWorks: input.whyItWorks.trim(),
       labels: input.labels.split(",").map((label) => label.trim()).filter(Boolean),
       createdAt: new Date().toISOString()

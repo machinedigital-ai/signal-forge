@@ -59,10 +59,17 @@ test("pattern record stores observations", () => {
     sourceUrl: "https://example.com/post",
     platform: "blog",
     title: "A useful essay",
+    hookType: "contrarian_reframe",
+    thesisShape: "tradeoff_thesis",
+    emotionalStance: "sharp_contrarian",
+    proofMove: "mechanism",
+    cadence: "mini_memo",
     labels: "hook, thesis",
     whyItWorks: "The hook creates tension and the proof arrives fast."
   });
   assert.equal(record.sourceUrl, "https://example.com/post");
+  assert.equal(record.hookType, "contrarian_reframe");
+  assert.equal(record.proofMove, "mechanism");
   assert.deepEqual(record.labels, ["hook", "thesis"]);
   assert.match(record.whyItWorks, /proof/);
 });
