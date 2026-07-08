@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const engine = require("./engine.js");
+const cli = require("./humanize.js");
 
 test("em dash is a hard ban", () => {
   const flags = engine.scanText("This sounds human — until the dash shows up.");
@@ -28,7 +29,7 @@ test("full thought leadership archetype library exists", () => {
 test("sanitizeOutput removes model em dashes", () => {
   const clean = engine.sanitizeOutput("This is clear — but the dash is not allowed.");
   assert.equal(clean.includes("—"), false);
-  assert.match(clean, /This is clear\. but/);
+  assert.match(clean, /This is clear\. But/);
 });
 
 test("fallback rewrite removes em dashes", () => {
@@ -69,4 +70,18 @@ test("toJsonl exports one JSON record per line", () => {
   const jsonl = engine.toJsonl([{ a: 1 }, { b: 2 }]);
   assert.equal(jsonl.split("\n").length, 2);
   assert.deepEqual(JSON.parse(jsonl.split("\n")[1]), { b: 2 });
+});
+
+test("CLI args choose input persona and model", () => {
+  const args = cli.parseArgs(["draft.md", "--persona", "The Anarchist", "--model", "ministral-3:8b"]);
+  assert.deepEqual(args, {
+    input: "draft.md",
+    persona: "The Anarchist",
+    model: "ministral-3:8b"
+  });
+});
+
+test("CLI finds personas case-insensitively", () => {
+  assert.equal(cli.findPersona("the anarchist").name, "The Anarchist");
+  assert.equal(cli.findPersona("missing").name, "The Operator");
 });

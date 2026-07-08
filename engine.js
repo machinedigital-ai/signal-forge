@@ -170,6 +170,7 @@
       .replace(/[—]/g, ". ")
       .replace(/[ \t]{2,}/g, " ")
       .replace(/ \./g, ".")
+      .replace(/(^|[.!?]\s+)([a-z])/g, (_match, prefix, char) => `${prefix}${char.toUpperCase()}`)
       .replace(/\n{3,}/g, "\n\n")
       .trim();
   }
