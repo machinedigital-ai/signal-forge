@@ -43,3 +43,16 @@ test("preference pair is DPO-ready", () => {
   assert.equal(pair.rejected, "Worse draft");
   assert.equal(pair.persona, "Blunt Operator");
 });
+
+test("pattern record stores observations", () => {
+  const record = engine.createPatternRecord({
+    sourceUrl: "https://example.com/post",
+    platform: "blog",
+    title: "A useful essay",
+    labels: "hook, thesis",
+    whyItWorks: "The hook creates tension and the proof arrives fast."
+  });
+  assert.equal(record.sourceUrl, "https://example.com/post");
+  assert.deepEqual(record.labels, ["hook", "thesis"]);
+  assert.match(record.whyItWorks, /proof/);
+});

@@ -474,6 +474,33 @@
         <label for="avoidList">Banned phrases</label>
         <textarea id="avoidList" placeholder="one phrase per line"></textarea>
       </div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+      <div class="section-title">
+        <span>Pattern Lab</span>
+        <button class="ghost" id="savePattern">Save</button>
+      </div>
+      <div class="field">
+        <label for="patternUrl">Source URL</label>
+        <input id="patternUrl" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label for="patternPlatform">Platform</label>
+        <input id="patternPlatform" placeholder="Substack, LinkedIn, blog">
+      </div>
+      <div class="field">
+        <label for="patternTitle">Title</label>
+        <input id="patternTitle" placeholder="What overperformed?">
+      </div>
+      <div class="field">
+        <label for="patternLabels">Labels</label>
+        <input id="patternLabels" placeholder="hook, thesis, proof">
+      </div>
+      <div class="field">
+        <label for="patternWhy">Why it works</label>
+        <textarea id="patternWhy" placeholder="Observed pattern, not copied content."></textarea>
+      </div>
+      <button class="ghost" id="exportPatterns" style="width:100%">Export Pattern Lab</button>
+      <p class="status" id="patternStatus">No pattern records saved yet.</p>
     </aside>
   </main>
 
@@ -510,6 +537,7 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     let compare = false;
     let lastRewriteText = localStorage.getItem("signalForgeRewrite") || "";
     const preferencePairs = JSON.parse(localStorage.getItem("signalForgePreferencePairs") || "[]");
+    const patternRecords = JSON.parse(localStorage.getItem("signalForgePatternRecords") || "[]");
 
     function escapeHtml(value) {
       return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char]));
@@ -672,6 +700,28 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       preferencePairs.push(pair);
       localStorage.setItem("signalForgePreferencePairs", JSON.stringify(preferencePairs));
       $("rewriteStatus").textContent = `Rejected. Preference pairs saved: ${preferencePairs.length}.`;
+    });
+    $("savePattern").addEventListener("click", () => {
+      if (!$("patternUrl").value.trim() || !$("patternWhy").value.trim()) return;
+      const record = SignalForgeEngine.createPatternRecord({
+        sourceUrl: $("patternUrl").value,
+        platform: $("patternPlatform").value,
+        title: $("patternTitle").value,
+        labels: $("patternLabels").value,
+        whyItWorks: $("patternWhy").value
+      });
+      patternRecords.push(record);
+      localStorage.setItem("signalForgePatternRecords", JSON.stringify(patternRecords));
+      $("patternStatus").textContent = `Pattern records saved: ${patternRecords.length}.`;
+      ["patternUrl", "patternPlatform", "patternTitle", "patternLabels", "patternWhy"].forEach((id) => ($(id).value = ""));
+    });
+    $("exportPatterns").addEventListener("click", () => {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(patternRecords, null, 2)], { type: "application/json" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "signal-forge-pattern-lab.json";
+      link.click();
+      URL.revokeObjectURL(url);
     });
     $("savePersona").addEventListener("click", () => {
       const name = $("personaName").value.trim();
