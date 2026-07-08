@@ -49,6 +49,12 @@
 
   const archetypes = [
     {
+      name: "My Voice",
+      description: "The owner's learned baseline. Clear, specific, personally edited, and shaped by accepted/rejected rewrites over time.",
+      banned: "in today's\nleverage\nunlock\nseamless\nem dash",
+      controls: { edge: 3, warmth: 3, proof: 4, clarity: 5, personal: 5 }
+    },
+    {
       name: "The Operator",
       description: "Direct, clipped, pragmatic. Sounds like a person who has shipped under pressure and hates soft corporate language.",
       banned: "leverage\nunlock\nseamless\ncutting-edge\nin today's",

@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const engine = require("./engine.js");
 
 function parseArgs(argv) {
-  const args = { persona: "The Operator", model: "", input: "" };
+  const args = { persona: "My Voice", model: "", input: "" };
   for (let i = 0; i < argv.length; i += 1) {
     const value = argv[i];
     if (value === "--persona") {

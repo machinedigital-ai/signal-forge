@@ -18,7 +18,8 @@ test("contrast mold is penalized but not hard banned", () => {
 });
 
 test("full thought leadership archetype library exists", () => {
-  assert.equal(engine.archetypes.length >= 9, true);
+  assert.equal(engine.archetypes.length >= 10, true);
+  assert.ok(engine.archetypes.find((persona) => persona.name === "My Voice"));
   assert.ok(engine.archetypes.find((persona) => persona.name === "The Operator"));
   const anarchist = engine.archetypes.find((persona) => persona.name === "The Anarchist");
   assert.ok(anarchist);
@@ -50,7 +51,7 @@ test("preference pair is DPO-ready", () => {
   assert.equal(pair.prompt.includes("Draft"), true);
   assert.equal(pair.chosen, "Better draft");
   assert.equal(pair.rejected, "Worse draft");
-  assert.equal(pair.persona, "The Operator");
+  assert.equal(pair.persona, "My Voice");
 });
 
 test("pattern record stores observations", () => {
@@ -83,5 +84,5 @@ test("CLI args choose input persona and model", () => {
 
 test("CLI finds personas case-insensitively", () => {
   assert.equal(cli.findPersona("the anarchist").name, "The Anarchist");
-  assert.equal(cli.findPersona("missing").name, "The Operator");
+  assert.equal(cli.findPersona("missing").name, "My Voice");
 });

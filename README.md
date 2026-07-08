@@ -19,6 +19,7 @@ npm test
 ## CLI
 
 ```bash
+node humanize.js draft.txt
 node humanize.js draft.txt --persona "The Anarchist"
 ```
 
@@ -38,6 +39,10 @@ The output is always sanitized to remove em dashes.
 - `engine.test.js`: Node tests.
 - `voices/archetypes/the-anarchist/`: first full voice pack with `soul.md`, `voice.json`, examples, and judge notes.
 
+Default voice:
+
+- `My Voice`: owner baseline for accepted/rejected rewrite learning.
+
 ## What Is Intentionally Not Built Yet
 
 - Scrapers.
@@ -47,4 +52,3 @@ The output is always sanitized to remove em dashes.
 - GPU training.
 
 Those come after the Pattern Lab and preference-pair loop prove the writing quality improves.
-
