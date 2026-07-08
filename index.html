@@ -501,6 +501,7 @@
       </div>
       <button class="ghost" id="exportPatterns" style="width:100%">Export Pattern Lab</button>
       <p class="status" id="patternStatus">No pattern records saved yet.</p>
+      <div class="flag-list" id="patternList"></div>
     </aside>
   </main>
 
@@ -524,8 +525,10 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       buildPrompt,
       fallbackRewrite,
       judgeRewrite,
+      sanitizeOutput,
       scanText,
-      scoreFlags
+      scoreFlags,
+      toJsonl
     } = SignalForgeEngine;
 
     const $ = (id) => document.getElementById(id);
@@ -597,10 +600,10 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
         });
         if (!response.ok) throw new Error(`Ollama returned ${response.status}`);
         const data = await response.json();
-        renderRewrite((data.response || "").trim() || fallbackRewrite(text, persona));
+        renderRewrite(sanitizeOutput((data.response || "").trim() || fallbackRewrite(text, persona)));
         $("rewriteStatus").textContent = "Rewritten through Ollama.";
       } catch (error) {
-        renderRewrite(fallbackRewrite(text, persona));
+        renderRewrite(sanitizeOutput(fallbackRewrite(text, persona)));
         $("rewriteStatus").textContent = `${error.message}. Used local fallback.`;
       } finally {
         $("rewriteButton").disabled = false;
@@ -626,6 +629,21 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
         $("rewriteArea").textContent = text;
       }
       localStorage.setItem("signalForgeRewrite", text);
+    }
+
+    function renderPatterns() {
+      $("patternStatus").textContent = patternRecords.length
+        ? `Pattern records saved: ${patternRecords.length}.`
+        : "No pattern records saved yet.";
+      $("patternList").innerHTML = patternRecords.length
+        ? patternRecords.slice(-5).reverse().map((record) => `
+          <div class="flag">
+            <span class="dot green"></span>
+            <span><strong>${escapeHtml(record.platform || "source")}</strong> ${escapeHtml(record.title || record.sourceUrl)}<br><span class="small">${escapeHtml(record.labels.join(", ") || "unlabeled")}</span></span>
+            <strong>saved</strong>
+          </div>
+        `).join("")
+        : `<div class="flag"><span class="dot amber"></span><span>Save viral pattern observations here.</span><strong>0</strong></div>`;
     }
 
     async function loadModels() {
@@ -669,7 +687,7 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       await navigator.clipboard.writeText($("rewriteArea").innerText);
     });
     $("exportPairs").addEventListener("click", () => {
-      const jsonl = preferencePairs.map((pair) => JSON.stringify(pair)).join("\n");
+      const jsonl = toJsonl(preferencePairs);
       const url = URL.createObjectURL(new Blob([jsonl], { type: "application/jsonl" }));
       const link = document.createElement("a");
       link.href = url;
@@ -712,7 +730,7 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       });
       patternRecords.push(record);
       localStorage.setItem("signalForgePatternRecords", JSON.stringify(patternRecords));
-      $("patternStatus").textContent = `Pattern records saved: ${patternRecords.length}.`;
+      renderPatterns();
       ["patternUrl", "patternPlatform", "patternTitle", "patternLabels", "patternWhy"].forEach((id) => ($(id).value = ""));
     });
     $("exportPatterns").addEventListener("click", () => {
@@ -751,6 +769,7 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     lastFlags = scanText($("sourceText").value);
     renderScan(lastFlags);
     renderRewrite(localStorage.getItem("signalForgeRewrite") || fallbackRewrite($("sourceText").value, currentPersona()));
+    renderPatterns();
     loadModels();
   </script>
 </body>

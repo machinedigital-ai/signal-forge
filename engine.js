@@ -49,7 +49,7 @@
 
   const archetypes = [
     {
-      name: "Blunt Operator",
+      name: "The Operator",
       description: "Direct, clipped, pragmatic. Sounds like a person who has shipped under pressure and hates soft corporate language.",
       banned: "leverage\nunlock\nseamless\ncutting-edge\nin today's",
       controls: { edge: 4, warmth: 2, proof: 5, clarity: 5 }
@@ -65,6 +65,48 @@
       description: "Bold internal memo voice. Specific, urgent, unsentimental, and aimed at leaders who need to act this quarter.",
       banned: "digital landscape\nrobust\nharnessing the power\nat the end of the day",
       controls: { edge: 3, warmth: 3, proof: 5, clarity: 5 }
+    },
+    {
+      name: "The Heretic",
+      description: "Attacks accepted industry wisdom without losing the plot. Clean enemies, sharp claims, no cheap outrage.",
+      banned: "best practices\nindustry standard\nthought leader\nparadigm shift",
+      controls: { edge: 5, warmth: 2, proof: 4, clarity: 5, defiance: 5 }
+    },
+    {
+      name: "Field Reporter",
+      description: "Grounded in what happened this week. Specific scenes, stripped names, clear lessons, no fake memoir fog.",
+      banned: "journey\nvaluable lesson\nincredible experience\nhumbled",
+      controls: { edge: 3, warmth: 4, proof: 5, clarity: 5, scene: 5 }
+    },
+    {
+      name: "Bruised Optimist",
+      description: "Hopeful after admitting what hurt. Honest about cost, allergic to sunny slogans.",
+      banned: "everything happens for a reason\nsilver lining\nkeep pushing\npositive vibes",
+      controls: { edge: 3, warmth: 5, proof: 3, clarity: 5, hope: 5 }
+    },
+    {
+      name: "Builder-Philosopher",
+      description: "Turns technical and operational observations into larger human truths without getting mystical.",
+      banned: "humanity\nreimagine\nunlock potential\ntapestry",
+      controls: { edge: 3, warmth: 3, proof: 4, clarity: 4, reflection: 5 }
+    },
+    {
+      name: "Provocateur With Receipts",
+      description: "Makes the bold claim, then pays for it with proof. Controlled aggression, no empty hot takes.",
+      banned: "hot take\nunpopular opinion\nlet that sink in\nwake up",
+      controls: { edge: 5, warmth: 2, proof: 5, clarity: 5, receipts: 5 }
+    },
+    {
+      name: "Mentor In The Arena",
+      description: "Teaches from scars, not a pedestal. Protective, direct, and useful to people actually building.",
+      banned: "here's everything you need\nultimate guide\ncrushing it\nboss",
+      controls: { edge: 3, warmth: 5, proof: 4, clarity: 5, mentorship: 5 }
+    },
+    {
+      name: "Cultural Diagnostician",
+      description: "Names the industry pattern everyone feels but cannot quite say. Sharp disappointment, clean diagnosis.",
+      banned: "culture shift\nzeitgeist\nnew era\nchanging landscape",
+      controls: { edge: 4, warmth: 2, proof: 4, clarity: 5, diagnosis: 5 }
     },
     {
       name: "The Anarchist",
@@ -123,6 +165,15 @@
     };
   }
 
+  function sanitizeOutput(text) {
+    return text
+      .replace(/[—]/g, ". ")
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/ \./g, ".")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
   function judgeRewrite(original, rewrite, flags) {
     const tone = analyzeTone(rewrite, flags);
     const clarity = tone.avgSentenceWords <= 24 ? 5 : tone.avgSentenceWords <= 32 ? 4 : 3;
@@ -173,7 +224,7 @@
     banned.forEach((phrase) => {
       revised = revised.replace(new RegExp(escapeRegex(phrase), "gi"), "");
     });
-    return revised.replace(/[ \t]{2,}/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+    return sanitizeOutput(revised);
   }
 
   function buildPrompt(text, persona, flags) {
@@ -221,6 +272,10 @@ ${text}`;
     };
   }
 
+  function toJsonl(records) {
+    return records.map((record) => JSON.stringify(record)).join("\n");
+  }
+
   const api = {
     archetypes,
     cliches,
@@ -231,8 +286,10 @@ ${text}`;
     createPreferencePair,
     fallbackRewrite,
     judgeRewrite,
+    sanitizeOutput,
     scanText,
-    scoreFlags
+    scoreFlags,
+    toJsonl
   };
 
   if (typeof module !== "undefined" && module.exports) module.exports = api;

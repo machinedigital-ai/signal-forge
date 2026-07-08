@@ -16,11 +16,19 @@ test("contrast mold is penalized but not hard banned", () => {
   assert.equal(contrast.weight, 55);
 });
 
-test("The Anarchist archetype exists", () => {
+test("full thought leadership archetype library exists", () => {
+  assert.equal(engine.archetypes.length >= 9, true);
+  assert.ok(engine.archetypes.find((persona) => persona.name === "The Operator"));
   const anarchist = engine.archetypes.find((persona) => persona.name === "The Anarchist");
   assert.ok(anarchist);
   assert.equal(anarchist.controls.pettiness, 5);
   assert.match(anarchist.description, /craft/);
+});
+
+test("sanitizeOutput removes model em dashes", () => {
+  const clean = engine.sanitizeOutput("This is clear — but the dash is not allowed.");
+  assert.equal(clean.includes("—"), false);
+  assert.match(clean, /This is clear\. but/);
 });
 
 test("fallback rewrite removes em dashes", () => {
@@ -41,7 +49,7 @@ test("preference pair is DPO-ready", () => {
   assert.equal(pair.prompt.includes("Draft"), true);
   assert.equal(pair.chosen, "Better draft");
   assert.equal(pair.rejected, "Worse draft");
-  assert.equal(pair.persona, "Blunt Operator");
+  assert.equal(pair.persona, "The Operator");
 });
 
 test("pattern record stores observations", () => {
@@ -55,4 +63,10 @@ test("pattern record stores observations", () => {
   assert.equal(record.sourceUrl, "https://example.com/post");
   assert.deepEqual(record.labels, ["hook", "thesis"]);
   assert.match(record.whyItWorks, /proof/);
+});
+
+test("toJsonl exports one JSON record per line", () => {
+  const jsonl = engine.toJsonl([{ a: 1 }, { b: 2 }]);
+  assert.equal(jsonl.split("\n").length, 2);
+  assert.deepEqual(JSON.parse(jsonl.split("\n")[1]), { b: 2 });
 });
