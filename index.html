@@ -402,6 +402,7 @@
       <span id="ollamaStatus">Checking Ollama...</span>
       <select id="modelSelect" aria-label="Ollama model"></select>
       <button class="ghost" id="copyRewrite">Copy rewrite</button>
+      <button class="ghost" id="exportPairs">Export pairs</button>
     </div>
   </header>
 
@@ -443,6 +444,11 @@
       <div id="rewriteArea" class="rewrite-box">Your revision will appear here.</div>
       <button class="primary blue" id="rewriteButton">Rewrite with Selected Persona</button>
       <p class="status" id="rewriteStatus">Ready.</p>
+      <div class="flag-list" id="criticReport"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="ghost" id="acceptRewrite">Accept</button>
+        <button class="ghost" id="rejectRewrite">Reject</button>
+      </div>
     </section>
 
     <aside class="col">
@@ -502,6 +508,8 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     });
     let lastFlags = [];
     let compare = false;
+    let lastRewriteText = localStorage.getItem("signalForgeRewrite") || "";
+    const preferencePairs = JSON.parse(localStorage.getItem("signalForgePreferencePairs") || "[]");
 
     function escapeHtml(value) {
       return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char]));
@@ -572,6 +580,16 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     }
 
     function renderRewrite(text) {
+      lastRewriteText = text;
+      const rewriteFlags = scanText(text);
+      const report = judgeRewrite($("sourceText").value, text, rewriteFlags);
+      $("criticReport").innerHTML = `
+        <div class="flag"><span class="dot ${report.hardBans ? "" : "green"}"></span><span>Hard bans</span><strong>${report.hardBans}</strong></div>
+        <div class="flag"><span class="dot green"></span><span>Clarity</span><strong>${report.clarity}/5</strong></div>
+        <div class="flag"><span class="dot green"></span><span>Anti-cliche</span><strong>${report.antiCliche}/5</strong></div>
+        <div class="flag"><span class="dot amber"></span><span>Proof</span><strong>${report.proof}/5</strong></div>
+        <div class="flag"><span class="dot amber"></span><span>${escapeHtml(report.notes.join(" "))}</span><strong>note</strong></div>
+      `;
       if (compare) {
         $("rewriteArea").className = "compare";
         $("rewriteArea").innerHTML = `<div class="rewrite-box">${escapeHtml($("sourceText").value)}</div><div class="rewrite-box">${escapeHtml(text)}</div>`;
@@ -621,6 +639,39 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     });
     $("copyRewrite").addEventListener("click", async () => {
       await navigator.clipboard.writeText($("rewriteArea").innerText);
+    });
+    $("exportPairs").addEventListener("click", () => {
+      const jsonl = preferencePairs.map((pair) => JSON.stringify(pair)).join("\n");
+      const url = URL.createObjectURL(new Blob([jsonl], { type: "application/jsonl" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "signal-forge-preference-pairs.jsonl";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+    $("acceptRewrite").addEventListener("click", () => {
+      const pair = SignalForgeEngine.createPreferencePair({
+        original: $("sourceText").value,
+        chosen: lastRewriteText,
+        rejected: $("sourceText").value,
+        persona: currentPersona(),
+        reason: "User accepted rewrite"
+      });
+      preferencePairs.push(pair);
+      localStorage.setItem("signalForgePreferencePairs", JSON.stringify(preferencePairs));
+      $("rewriteStatus").textContent = `Accepted. Preference pairs saved: ${preferencePairs.length}.`;
+    });
+    $("rejectRewrite").addEventListener("click", () => {
+      const pair = SignalForgeEngine.createPreferencePair({
+        original: $("sourceText").value,
+        chosen: $("sourceText").value,
+        rejected: lastRewriteText,
+        persona: currentPersona(),
+        reason: "User rejected rewrite"
+      });
+      preferencePairs.push(pair);
+      localStorage.setItem("signalForgePreferencePairs", JSON.stringify(preferencePairs));
+      $("rewriteStatus").textContent = `Rejected. Preference pairs saved: ${preferencePairs.length}.`;
     });
     $("savePersona").addEventListener("click", () => {
       const name = $("personaName").value.trim();
