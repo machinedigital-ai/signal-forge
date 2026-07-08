@@ -31,11 +31,25 @@ node humanize.js draft.txt --persona "The Anarchist" --model ministral-3:8b
 
 The output is always sanitized to remove em dashes.
 
+## MCP Server
+
+Run the stdio MCP server:
+
+```bash
+npm run mcp
+```
+
+Tools:
+
+- `scan_text`: returns Signal Forge score and flags.
+- `humanize_text`: rewrites text through a persona and removes em dashes.
+
 ## What Exists
 
 - `index.html`: local web app.
 - `engine.js`: scanner, archetypes, critic, fallback rewrite, dataset helpers.
 - `humanize.js`: local CLI wrapper.
+- `mcp-server.js`: dependency-free stdio MCP server.
 - `engine.test.js`: Node tests.
 - `voices/archetypes/the-anarchist/`: first full voice pack with `soul.md`, `voice.json`, examples, and judge notes.
 
@@ -48,7 +62,6 @@ Default voice:
 - Scrapers.
 - Account system.
 - Backend database.
-- MCP server.
 - GPU training.
 
 Those come after the Pattern Lab and preference-pair loop prove the writing quality improves.

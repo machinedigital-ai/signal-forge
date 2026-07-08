@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const engine = require("./engine.js");
 const cli = require("./humanize.js");
+const mcp = require("./mcp-server.js");
 
 test("em dash is a hard ban", () => {
   const flags = engine.scanText("This sounds human — until the dash shows up.");
@@ -117,4 +118,32 @@ test("CLI args choose input persona model and voice path", () => {
 test("CLI finds personas case-insensitively", () => {
   assert.equal(cli.findPersona("the anarchist").name, "The Anarchist");
   assert.equal(cli.findPersona("missing").name, "My Voice");
+});
+
+test("MCP lists Signal Forge tools", async () => {
+  const response = await mcp.handleRequest({ jsonrpc: "2.0", id: 1, method: "tools/list" });
+  assert.equal(response.result.tools.some((tool) => tool.name === "humanize_text"), true);
+  assert.equal(response.result.tools.some((tool) => tool.name === "scan_text"), true);
+});
+
+test("MCP humanize_text returns sanitized content", async () => {
+  const response = await mcp.handleRequest({
+    jsonrpc: "2.0",
+    id: 2,
+    method: "tools/call",
+    params: {
+      name: "humanize_text",
+      arguments: { text: "AI is useful — but lazy writing is still lazy.", persona: "The Anarchist" }
+    }
+  });
+  const text = response.result.content[0].text;
+  assert.equal(text.includes("—"), false);
+});
+
+test("MCP framing round-trips JSON-RPC messages", () => {
+  const encoded = mcp.encodeMessage({ jsonrpc: "2.0", id: 3, method: "tools/list" });
+  const received = [];
+  const parse = mcp.createFramedParser((message) => received.push(message));
+  parse(Buffer.from(encoded));
+  assert.equal(received[0].method, "tools/list");
 });
