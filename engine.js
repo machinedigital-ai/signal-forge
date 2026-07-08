@@ -283,6 +283,30 @@ ${text}`;
     return records.map((record) => JSON.stringify(record)).join("\n");
   }
 
+  function personaFromVoicePack(pack) {
+    const banned = pack.banned || pack.banned_phrases || [];
+    return {
+      name: pack.name || "Imported Voice",
+      description: pack.description || pack.positioning || "Imported Signal Forge voice.",
+      banned: Array.isArray(banned) ? banned.join("\n") : String(banned || ""),
+      controls: pack.controls || {}
+    };
+  }
+
+  function exportPersonaPack(persona) {
+    return {
+      name: persona.name,
+      description: persona.description,
+      controls: persona.controls || {},
+      banned_phrases: (persona.banned || "").split("\n").map((phrase) => phrase.trim()).filter(Boolean),
+      hard_rules: [
+        "Never use em dashes.",
+        "Clarity beats novelty.",
+        "Never invent proof, metrics, or lived experience."
+      ]
+    };
+  }
+
   const api = {
     archetypes,
     cliches,
@@ -292,7 +316,9 @@ ${text}`;
     createPatternRecord,
     createPreferencePair,
     fallbackRewrite,
+    exportPersonaPack,
     judgeRewrite,
+    personaFromVoicePack,
     sanitizeOutput,
     scanText,
     scoreFlags,

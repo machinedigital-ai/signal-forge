@@ -3,13 +3,15 @@ const fs = require("node:fs");
 const engine = require("./engine.js");
 
 function parseArgs(argv) {
-  const args = { persona: "My Voice", model: "", input: "" };
+  const args = { persona: "My Voice", model: "", input: "", voice: "" };
   for (let i = 0; i < argv.length; i += 1) {
     const value = argv[i];
     if (value === "--persona") {
       args.persona = argv[++i] || args.persona;
     } else if (value === "--model") {
       args.model = argv[++i] || "";
+    } else if (value === "--voice") {
+      args.voice = argv[++i] || "";
     } else if (!args.input) {
       args.input = value;
     }
@@ -39,7 +41,9 @@ async function run(argv = process.argv.slice(2)) {
   }
 
   const text = fs.readFileSync(args.input, "utf8");
-  const persona = findPersona(args.persona);
+  const persona = args.voice
+    ? engine.personaFromVoicePack(JSON.parse(fs.readFileSync(args.voice, "utf8")))
+    : findPersona(args.persona);
   const flags = engine.scanText(text);
   let rewrite = "";
 

@@ -73,12 +73,37 @@ test("toJsonl exports one JSON record per line", () => {
   assert.deepEqual(JSON.parse(jsonl.split("\n")[1]), { b: 2 });
 });
 
-test("CLI args choose input persona and model", () => {
-  const args = cli.parseArgs(["draft.md", "--persona", "The Anarchist", "--model", "ministral-3:8b"]);
+test("voice packs normalize into personas", () => {
+  const persona = engine.personaFromVoicePack({
+    name: "Test Voice",
+    positioning: "Clear pressure.",
+    controls: { clarity: 5 },
+    banned_phrases: ["leverage", "unlock"]
+  });
+  assert.equal(persona.name, "Test Voice");
+  assert.equal(persona.description, "Clear pressure.");
+  assert.equal(persona.banned, "leverage\nunlock");
+  assert.equal(persona.controls.clarity, 5);
+});
+
+test("personas export as voice packs", () => {
+  const pack = engine.exportPersonaPack({
+    name: "Test Voice",
+    description: "Specific and sharp.",
+    banned: "leverage\nunlock",
+    controls: { edge: 4 }
+  });
+  assert.deepEqual(pack.banned_phrases, ["leverage", "unlock"]);
+  assert.equal(pack.hard_rules.includes("Never use em dashes."), true);
+});
+
+test("CLI args choose input persona model and voice path", () => {
+  const args = cli.parseArgs(["draft.md", "--persona", "The Anarchist", "--model", "ministral-3:8b", "--voice", "voice.json"]);
   assert.deepEqual(args, {
     input: "draft.md",
     persona: "The Anarchist",
-    model: "ministral-3:8b"
+    model: "ministral-3:8b",
+    voice: "voice.json"
   });
 });
 

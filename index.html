@@ -461,6 +461,11 @@
         <select id="personaSelect"></select>
       </div>
       <div class="persona-card" id="personaSummary"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="ghost" id="exportVoice">Export voice</button>
+        <label class="ghost" for="importVoice" style="text-align:center;cursor:pointer">Import voice</label>
+      </div>
+      <input id="importVoice" type="file" accept="application/json,.json" style="display:none">
       <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
       <div class="field">
         <label for="personaName">Create persona</label>
@@ -524,7 +529,9 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       archetypes: basePersonas,
       buildPrompt,
       fallbackRewrite,
+      exportPersonaPack,
       judgeRewrite,
+      personaFromVoicePack,
       sanitizeOutput,
       scanText,
       scoreFlags,
@@ -718,6 +725,32 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       preferencePairs.push(pair);
       localStorage.setItem("signalForgePreferencePairs", JSON.stringify(preferencePairs));
       $("rewriteStatus").textContent = `Rejected. Preference pairs saved: ${preferencePairs.length}.`;
+    });
+    $("exportVoice").addEventListener("click", () => {
+      const pack = exportPersonaPack(currentPersona());
+      const url = URL.createObjectURL(new Blob([JSON.stringify(pack, null, 2)], { type: "application/json" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${pack.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "voice"}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+    $("importVoice").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const pack = JSON.parse(await file.text());
+      const persona = personaFromVoicePack(pack);
+      const existingIndex = personas.findIndex((item) => item.name === persona.name);
+      if (existingIndex >= 0) {
+        personas[existingIndex] = persona;
+      } else {
+        personas.push(persona);
+      }
+      localStorage.setItem("signalForgePersonas", JSON.stringify(personas));
+      renderPersonas();
+      $("personaSelect").value = persona.name;
+      renderPersonaSummary();
+      event.target.value = "";
     });
     $("savePattern").addEventListener("click", () => {
       if (!$("patternUrl").value.trim() || !$("patternWhy").value.trim()) return;
