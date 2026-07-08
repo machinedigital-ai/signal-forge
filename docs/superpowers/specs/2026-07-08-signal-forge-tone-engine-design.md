@@ -65,7 +65,7 @@ This is like studying 1,000 strong photos to understand lighting, composition, s
 
 The Pattern Lab should support:
 
-- Viral threshold research, such as posts or essays with 50,000+ views, strong engagement, high saves, major reposts, or visible influence.
+- Viral pattern research, such as posts or essays that clearly overperform for their platform, audience, format, or author baseline.
 - Platform-specific pattern notes for LinkedIn, X, Reddit, Medium, Substack, independent blogs, founder letters, company essays, and public reports.
 - PLR, public-domain, Creative Commons, government, SEC, and permissioned corpora for deeper local storage and training.
 - Manual and automated annotation of hooks, thesis shapes, proof moves, emotional stance, cadence, structure, and failure modes.
@@ -349,4 +349,3 @@ Skipped for the first implementation:
 - Agent framework.
 
 Add those only when the Pattern Lab and preference loop prove the writing quality improves measurably.
-
