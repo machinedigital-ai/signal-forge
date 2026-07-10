@@ -611,6 +611,8 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     let lastRewriteText = localStorage.getItem("signalForgeRewrite") || "";
     const preferencePairs = JSON.parse(localStorage.getItem("signalForgePreferencePairs") || "[]");
     const patternRecords = JSON.parse(localStorage.getItem("signalForgePatternRecords") || "[]");
+    let ollamaBaseUrl = "http://127.0.0.1:11434";
+    const ollamaBaseUrls = ["http://127.0.0.1:11434", "http://localhost:11434"];
 
     function escapeHtml(value) {
       return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char]));
@@ -663,7 +665,7 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       $("rewriteButton").disabled = true;
       try {
         if (!model) throw new Error("No Ollama model selected");
-        const response = await fetch("http://localhost:11434/api/generate", {
+        const response = await fetch(`${ollamaBaseUrl}/api/generate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ model, prompt: buildPrompt(text, persona, lastFlags), stream: false })
@@ -717,18 +719,34 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     }
 
     async function loadModels() {
-      try {
-        const response = await fetch("http://localhost:11434/api/tags");
-        if (!response.ok) throw new Error("Ollama is not responding");
-        const data = await response.json();
-        const models = (data.models || [])
-          .filter((model) => !model.capabilities || model.capabilities.includes("completion"))
-          .map((model) => model.name);
-        $("modelSelect").innerHTML = models.map((name) => `<option>${escapeHtml(name)}</option>`).join("");
-        $("ollamaStatus").textContent = models.length ? "Ollama connected" : "Ollama connected, no models found";
-      } catch {
+      if (location.protocol === "file:") {
         $("modelSelect").innerHTML = "";
-        $("ollamaStatus").textContent = "Ollama not detected";
+        $("ollamaStatus").textContent = "Open via npm start, not file://";
+        return;
+      }
+
+      let lastError = "";
+      try {
+        for (const baseUrl of ollamaBaseUrls) {
+          try {
+            const response = await fetch(`${baseUrl}/api/tags`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const models = (data.models || [])
+              .filter((model) => !model.capabilities || model.capabilities.includes("completion"))
+              .map((model) => model.name);
+            ollamaBaseUrl = baseUrl;
+            $("modelSelect").innerHTML = models.map((name) => `<option>${escapeHtml(name)}</option>`).join("");
+            $("ollamaStatus").textContent = models.length ? `Ollama connected (${baseUrl.replace("http://", "")})` : "Ollama connected, no models found";
+            return;
+          } catch (error) {
+            lastError = error.message;
+          }
+        }
+        throw new Error(lastError);
+      } catch (error) {
+        $("modelSelect").innerHTML = "";
+        $("ollamaStatus").textContent = `Ollama not detected: ${error.message}`;
       }
     }
 

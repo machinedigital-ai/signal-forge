@@ -10,6 +10,8 @@ npm start
 
 Open `http://localhost:4173`.
 
+Do not open `index.html` directly with `file://`. Browsers block `file://` pages from calling local Ollama.
+
 ## Run Tests
 
 ```bash
