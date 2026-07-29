@@ -6,393 +6,49 @@
   <title>Signal Forge</title>
   <link rel="icon" href="data:,">
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #f7f7f5;
-      --panel: #ffffff;
-      --ink: #101010;
-      --muted: #66645f;
-      --line: #d9d7d1;
-      --red: #e10600;
-      --blue: #064df6;
-      --amber: #f5a400;
-      --green: #16803c;
-      --shadow: 0 18px 60px rgba(16, 16, 16, 0.08);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-    }
-
-    button, input, select, textarea {
-      font: inherit;
-    }
-
-    button {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      color: var(--ink);
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-    }
-
-    textarea, input, select {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--ink);
-      outline: none;
-    }
-
-    textarea:focus, input:focus, select:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(6, 77, 246, 0.12);
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      height: 68px;
-      padding: 0 20px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(16px);
-      position: sticky;
-      top: 0;
-      z-index: 4;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-    }
-
-    .mark {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      background: linear-gradient(135deg, var(--red) 0 46%, transparent 47% 53%, var(--red) 54%);
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(280px, 1.1fr) minmax(300px, 1fr) minmax(320px, 1.2fr) minmax(260px, 0.8fr);
-      min-height: calc(100vh - 68px);
-    }
-
-    .col {
-      padding: 24px 20px;
-      border-right: 1px solid var(--line);
-    }
-
-    .col:last-child {
-      border-right: 0;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-      font-weight: 900;
-    }
-
-    .step {
-      display: inline-grid;
-      place-items: center;
-      width: 24px;
-      height: 24px;
-      margin-right: 9px;
-      border-radius: 5px;
-      background: #050505;
-      color: #fff;
-      font-size: 13px;
-    }
-
-    .small {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .editor {
-      min-height: 560px;
-      padding: 20px;
-      resize: vertical;
-      font: 16px/1.62 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      box-shadow: inset 0 1px 0 rgba(16, 16, 16, 0.03);
-    }
-
-    .primary {
-      width: 100%;
-      margin-top: 16px;
-      padding: 16px 18px;
-      border-color: #050505;
-      background: #050505;
-      color: #fff;
-      box-shadow: var(--shadow);
-    }
-
-    .primary.blue {
-      border-color: var(--blue);
-      background: var(--blue);
-    }
-
-    .ghost {
-      padding: 9px 12px;
-      font-size: 13px;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: 0.8fr 1fr;
-      gap: 14px;
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-    }
-
-    .score {
-      display: grid;
-      place-items: center;
-      min-height: 145px;
-      border-right: 1px solid var(--line);
-    }
-
-    .score-number {
-      font-size: 52px;
-      font-weight: 900;
-      color: var(--red);
-      line-height: 1;
-    }
-
-    .breakdown {
-      display: grid;
-      align-content: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      margin-right: 8px;
-      border-radius: 999px;
-      background: var(--red);
-    }
-
-    .dot.amber {
-      background: var(--amber);
-    }
-
-    .dot.green {
-      background: var(--green);
-    }
-
-    .flag-list {
-      margin-top: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--panel);
-    }
-
-    .flag {
-      display: grid;
-      grid-template-columns: 14px 1fr auto;
-      align-items: center;
-      gap: 10px;
-      padding: 13px 14px;
-      border-bottom: 1px solid var(--line);
-      font-size: 13px;
-    }
-
-    .flag:last-child {
-      border-bottom: 0;
-    }
-
-    .flag strong {
-      color: var(--red);
-    }
-
-    .highlighted {
-      min-height: 180px;
-      margin-top: 14px;
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      white-space: pre-wrap;
-      font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    mark {
-      border-radius: 3px;
-      background: #ffe0df;
-      color: inherit;
-      padding: 0 2px;
-    }
-
-    .rewrite-box {
-      min-height: 560px;
-      padding: 20px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      white-space: pre-wrap;
-      font: 16px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .compare {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-    }
-
-    .compare .rewrite-box {
-      min-height: 420px;
-      font-size: 13px;
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .field textarea {
-      min-height: 92px;
-      padding: 12px;
-      resize: vertical;
-      line-height: 1.45;
-    }
-
-    .field input, .field select {
-      height: 38px;
-      padding: 0 10px;
-    }
-
-    .persona-card {
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-    }
-
-    .persona-card h3 {
-      margin: 0 0 8px;
-      font-size: 15px;
-    }
-
-    .persona-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .row > * {
-      flex: 1;
-    }
-
-    .status {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .footer {
-      position: fixed;
-      right: 18px;
-      bottom: 14px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--muted);
-      font-size: 12px;
-      box-shadow: var(--shadow);
-    }
-
-    @media (max-width: 1180px) {
-      .layout {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .col {
-        border-bottom: 1px solid var(--line);
-      }
-    }
-
-    @media (max-width: 760px) {
-      .topbar {
-        align-items: flex-start;
-        height: auto;
-        padding: 14px;
-        flex-direction: column;
-      }
-
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .col {
-        border-right: 0;
-      }
-
-      .metrics, .compare {
-        grid-template-columns: 1fr;
-      }
-
-      .score {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-        padding-bottom: 12px;
-      }
-    }
+    :root { color-scheme: light; --bg:#f7f7f5; --panel:#fff; --ink:#101010; --muted:#66645f; --line:#d9d7d1; --red:#e10600; --blue:#064df6; --amber:#f5a400; --green:#16803c; --shadow:0 14px 36px rgba(16,16,16,.07); font-family:"Avenir Next","Helvetica Neue",Helvetica,Arial,sans-serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); }
+    button,input,select,textarea { font:inherit; }
+    button { border:1px solid var(--line); border-radius:6px; background:var(--panel); color:var(--ink); cursor:pointer; font-weight:700; }
+    button:disabled { cursor:not-allowed; opacity:.55; }
+    textarea,input,select { width:100%; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); outline:none; }
+    textarea:focus,input:focus,select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(6,77,246,.12); }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:62px; padding:0 20px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.88); backdrop-filter:blur(16px); position:sticky; top:0; z-index:4; }
+    .brand { display:flex; align-items:center; gap:10px; font-size:19px; font-weight:900; letter-spacing:.02em; }
+    .mark { width:24px; height:24px; border-radius:5px; background:linear-gradient(135deg,var(--red) 0 46%,transparent 47% 53%,var(--red) 54%); }
+    .top-actions { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:13px; }
+    .layout { display:grid; grid-template-columns:minmax(300px,.88fr) minmax(430px,1.35fr) minmax(320px,.9fr); min-height:calc(100vh - 62px); }
+    .col { padding:22px 20px; border-right:1px solid var(--line); }
+    .section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; font-weight:900; }
+    .section-kicker { margin:0 0 5px; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .step { display:inline-grid; place-items:center; width:20px; height:20px; margin-right:7px; border-radius:4px; background:#050505; color:#fff; font-size:11px; }
+    .small { color:var(--muted); font-size:12px; font-weight:500; }
+    .editor { min-height:calc(100vh - 214px); padding:18px; resize:vertical; font:16px/1.62 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; box-shadow:inset 0 1px 0 rgba(16,16,16,.03); }
+    .primary { width:100%; margin-top:12px; padding:14px 16px; border-color:#050505; background:#050505; color:#fff; box-shadow:var(--shadow); }
+    .primary.blue { border-color:var(--blue); background:var(--blue); }
+    .ghost { padding:9px 12px; font-size:13px; }
+    .metrics { display:grid; grid-template-columns:.8fr 1fr; gap:14px; padding:0 0 14px; border-bottom:1px solid var(--line); }
+    .score { display:grid; place-items:center; min-height:112px; border-right:1px solid var(--line); }
+    .score-number { font-size:44px; font-weight:900; color:var(--red); line-height:1; }
+    .breakdown { display:grid; align-content:center; gap:10px; font-size:13px; }
+    .dot { display:inline-block; width:8px; height:8px; margin-right:8px; border-radius:999px; background:var(--red); }
+    .dot.amber { background:var(--amber); } .dot.green { background:var(--green); }
+    .flag-list { margin-top:18px; border-top:1px solid var(--line); overflow:hidden; }
+    .flag { display:grid; grid-template-columns:14px 1fr auto; align-items:center; gap:10px; padding:12px 2px; border-bottom:1px solid var(--line); font-size:13px; }
+    .flag:last-child { border-bottom:0; } .flag strong { color:var(--red); }
+    .highlighted { min-height:150px; margin-top:14px; padding:14px; border-left:3px solid var(--red); background:#fff8f7; white-space:pre-wrap; font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    mark { border-radius:3px; background:#ffe0df; color:inherit; padding:0 2px; }
+    .rewrite-box { min-height:calc(100vh - 214px); padding:22px; border:1px solid var(--ink); border-radius:6px; background:var(--panel); white-space:pre-wrap; font:16px/1.7 Georgia,"Times New Roman",serif; }
+    .compare { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; } .compare .rewrite-box { min-height:420px; font-size:13px; }
+    .field { margin-bottom:14px; } .field label { display:block; margin-bottom:7px; font-size:13px; font-weight:800; } .field textarea { min-height:92px; padding:12px; resize:vertical; line-height:1.45; } .field input,.field select { height:38px; padding:0 10px; }
+    .persona-card { padding:0 0 14px; border-bottom:1px solid var(--line); } .persona-card h3 { margin:0 0 8px; font-size:15px; } .persona-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.45; }
+    .row { display:flex; align-items:center; gap:10px; } .row > * { flex:1; } .status { margin-top:12px; color:var(--muted); font-size:13px; line-height:1.45; }
+    .footer { position:fixed; right:18px; bottom:14px; padding:8px 10px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.9); color:var(--muted); font-size:12px; box-shadow:var(--shadow); }
+    .inspector { background:#fbfbf9; } .tablist { display:grid; grid-template-columns:repeat(3,1fr); margin:0 -20px 20px; padding:0 20px; border-bottom:1px solid var(--line); } .tab { padding:11px 4px 10px; border:0; border-bottom:2px solid transparent; border-radius:0; background:transparent; color:var(--muted); font-size:12px; font-weight:800; } .tab[aria-selected="true"] { border-bottom-color:var(--ink); color:var(--ink); } .tab-panel[hidden] { display:none; }
+    .inspector-heading,.rewrite-meta { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; } .inspector-heading h2 { margin:0; font-size:18px; } .rewrite-meta { align-items:center; margin-bottom:12px; } .rewrite-meta .small { max-width:72%; } .write-status { min-height:20px; margin:8px 0 0; }
+    @media (max-width:1180px) { .layout { grid-template-columns:1fr 1fr; } .col { border-bottom:1px solid var(--line); } .inspector { grid-column:span 2; } }
+    @media (max-width:760px) { .topbar { align-items:flex-start; min-height:auto; padding:14px; flex-direction:column; } .top-actions { width:100%; flex-wrap:wrap; } .top-actions select { min-width:150px; flex:1; } .layout { grid-template-columns:1fr; } .col { border-right:0; } .inspector { grid-column:auto; } .editor,.rewrite-box { min-height:360px; } .metrics,.compare { grid-template-columns:1fr; } .score { border-right:0; border-bottom:1px solid var(--line); padding-bottom:12px; } .footer { display:none; } }
   </style>
 </head>
 <body>
@@ -401,61 +57,63 @@
     <div class="top-actions">
       <span id="ollamaStatus">Checking Ollama...</span>
       <select id="modelSelect" aria-label="Ollama model"></select>
-      <button class="ghost" id="copyRewrite">Copy rewrite</button>
       <button class="ghost" id="exportPairs">Export pairs</button>
     </div>
   </header>
 
   <main class="layout">
     <section class="col">
+      <p class="section-kicker">1. Draft</p>
       <div class="section-title">
-        <span><span class="step">1</span>Source Text</span>
+        <span>Source text</span>
         <button class="ghost" id="clearText">Clear</button>
       </div>
       <div class="small"><span id="charCount">0</span> characters</div>
       <textarea id="sourceText" class="editor" spellcheck="true"></textarea>
-      <button class="primary" id="scanButton">Scan for AI Cliches</button>
-      <p class="status">Paste writing, scan it, pick a persona, then rewrite through Ollama or the local fallback.</p>
+      <button class="primary" id="scanButton">Find the obvious AI</button>
+      <p class="status">Scan first. The inspector will show the phrases and structures worth changing.</p>
     </section>
 
     <section class="col">
+      <p class="section-kicker">2. Revise</p>
       <div class="section-title">
-        <span><span class="step">2</span>Review</span>
-        <button class="ghost" id="exportReport">Export</button>
+        <span>Revision canvas</span>
+        <button class="ghost" id="toggleCompare">Compare</button>
       </div>
-      <div class="metrics">
-        <div class="score">
-          <div>
-            <div class="score-number"><span id="score">0</span><span class="small">/100</span></div>
-            <div class="small" id="scoreLabel">No scan yet</div>
-          </div>
-        </div>
-        <div class="breakdown" id="breakdown"></div>
-      </div>
-      <div class="highlighted" id="highlightedText">Flagged phrases will appear here.</div>
-      <div class="flag-list" id="flagList"></div>
-    </section>
-
-    <section class="col">
-      <div class="section-title">
-        <span><span class="step">3</span>Rewrite Preview</span>
-        <button class="ghost" id="toggleCompare">Side by side</button>
+      <div class="rewrite-meta">
+        <span class="small" id="activeVoice">Choose a voice in the inspector.</span>
+        <button class="ghost" id="copyRewrite">Copy</button>
       </div>
       <div id="rewriteArea" class="rewrite-box">Your revision will appear here.</div>
-      <button class="primary blue" id="rewriteButton">Rewrite with Selected Persona</button>
-      <p class="status" id="rewriteStatus">Ready.</p>
-      <div class="flag-list" id="criticReport"></div>
+      <button class="primary blue" id="rewriteButton">Rewrite in this voice</button>
+      <p class="status write-status" id="rewriteStatus">Ready.</p>
       <div class="row" style="margin-top:12px">
-        <button class="ghost" id="acceptRewrite">Accept</button>
-        <button class="ghost" id="rejectRewrite">Reject</button>
+        <button class="ghost" id="acceptRewrite">Keep this</button>
+        <button class="ghost" id="rejectRewrite">Not right</button>
       </div>
     </section>
 
-    <aside class="col">
-      <div class="section-title">
-        <span><span class="step">4</span>Persona</span>
-        <button class="ghost" id="savePersona">Save</button>
+    <aside class="col inspector">
+      <div class="tablist" role="tablist" aria-label="Writing inspector">
+        <button class="tab" id="reviewTab" role="tab" aria-selected="true" aria-controls="reviewPanel">Review</button>
+        <button class="tab" id="voiceTab" role="tab" aria-selected="false" aria-controls="voicePanel">Voice</button>
+        <button class="tab" id="patternsTab" role="tab" aria-selected="false" aria-controls="patternsPanel">Patterns</button>
       </div>
+
+      <section class="tab-panel" id="reviewPanel" role="tabpanel" aria-labelledby="reviewTab">
+        <div class="inspector-heading"><h2>What gives it away</h2><button class="ghost" id="exportReport">Export</button></div>
+        <div class="metrics">
+          <div class="score"><div><div class="score-number"><span id="score">0</span><span class="small">/100</span></div><div class="small" id="scoreLabel">No scan yet</div></div></div>
+          <div class="breakdown" id="breakdown"></div>
+        </div>
+        <div class="highlighted" id="highlightedText">Flagged phrases will appear here.</div>
+        <div class="flag-list" id="flagList"></div>
+        <div class="inspector-heading" style="margin-top:22px"><h2>Revision check</h2></div>
+        <div class="flag-list" id="criticReport"></div>
+      </section>
+
+      <section class="tab-panel" id="voicePanel" role="tabpanel" aria-labelledby="voiceTab" hidden>
+        <div class="inspector-heading"><h2>Voice direction</h2><button class="ghost" id="savePersona">Save</button></div>
       <div class="field">
         <label for="personaSelect">Choose vibe</label>
         <select id="personaSelect"></select>
@@ -479,11 +137,11 @@
         <label for="avoidList">Banned phrases</label>
         <textarea id="avoidList" placeholder="one phrase per line"></textarea>
       </div>
-      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
-      <div class="section-title">
-        <span>Pattern Lab</span>
-        <button class="ghost" id="savePattern">Save</button>
-      </div>
+      </section>
+
+      <section class="tab-panel" id="patternsPanel" role="tabpanel" aria-labelledby="patternsTab" hidden>
+      <div class="inspector-heading"><h2>Pattern lab</h2><button class="ghost" id="savePattern">Save</button></div>
+      <p class="status" style="margin-top:0">Capture why a piece travelled. Save observations, never the writing itself.</p>
       <div class="field">
         <label for="patternUrl">Source URL</label>
         <input id="patternUrl" placeholder="https://...">
@@ -570,6 +228,7 @@
       <button class="ghost" id="exportPatterns" style="width:100%">Export Pattern Lab</button>
       <p class="status" id="patternStatus">No pattern records saved yet.</p>
       <div class="flag-list" id="patternList"></div>
+      </section>
     </aside>
   </main>
 
@@ -631,6 +290,15 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
       const persona = currentPersona();
       $("personaSummary").innerHTML = `<h3>${escapeHtml(persona.name)}</h3><p>${escapeHtml(persona.description)}</p>`;
       $("avoidList").value = persona.banned || "";
+      $("activeVoice").textContent = `Voice: ${persona.name}`;
+    }
+
+    function showInspectorTab(name) {
+      ["review", "voice", "patterns"].forEach((tabName) => {
+        const selected = tabName === name;
+        $(`${tabName}Tab`).setAttribute("aria-selected", String(selected));
+        $(`${tabName}Panel`).hidden = !selected;
+      });
     }
 
     function renderScan(flags) {
@@ -763,6 +431,9 @@ The danger isn't the robot. It's the delusion that you're special enough to stay
     $("rewriteButton").addEventListener("click", rewrite);
     $("sourceText").addEventListener("input", saveDraft);
     $("personaSelect").addEventListener("change", renderPersonaSummary);
+    ["review", "voice", "patterns"].forEach((tabName) => {
+      $(`${tabName}Tab`).addEventListener("click", () => showInspectorTab(tabName));
+    });
     $("toggleCompare").addEventListener("click", () => {
       compare = !compare;
       renderRewrite(localStorage.getItem("signalForgeRewrite") || "Your revision will appear here.");
